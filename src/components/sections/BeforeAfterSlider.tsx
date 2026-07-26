@@ -9,6 +9,9 @@ import { clamp, cn } from "@/lib/utils";
 interface Props {
   beforeSeed: string;
   afterSeed: string;
+  /** Real photo paths — when set, they replace the generated stock images. */
+  beforeSrc?: string;
+  afterSrc?: string;
   beforeLabel?: string;
   afterLabel?: string;
   className?: string;
@@ -22,6 +25,8 @@ interface Props {
 export default function BeforeAfterSlider({
   beforeSeed,
   afterSeed,
+  beforeSrc,
+  afterSrc,
   beforeLabel = "Before",
   afterLabel = "After",
   className,
@@ -73,16 +78,20 @@ export default function BeforeAfterSlider({
     >
       {/* AFTER — full base layer */}
       <div className="absolute inset-0">
-        <Placeholder seed={afterSeed} label={afterLabel} kind="scene" className="h-full w-full" />
+        <Placeholder seed={afterSeed} src={afterSrc} label={afterLabel} kind="scene" className="h-full w-full" />
         <span className="absolute bottom-4 right-4 rounded-full bg-ink/70 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-widest text-paper backdrop-blur">
           {afterLabel}
         </span>
       </div>
 
-      {/* BEFORE — clipped overlay, deliberately duller */}
+      {/* BEFORE — clipped overlay. Fake the "duller" look only for stock images;
+          a real before-photo already shows the littered beach. */}
       <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
-        <div className="h-full w-full" style={{ filter: "grayscale(0.5) sepia(0.15) contrast(1.05) brightness(0.85)" }}>
-          <Placeholder seed={beforeSeed} label={beforeLabel} kind="scene" className="h-full w-full" />
+        <div
+          className="h-full w-full"
+          style={beforeSrc ? undefined : { filter: "grayscale(0.5) sepia(0.15) contrast(1.05) brightness(0.85)" }}
+        >
+          <Placeholder seed={beforeSeed} src={beforeSrc} label={beforeLabel} kind="scene" className="h-full w-full" />
         </div>
         <span className="absolute bottom-4 left-4 rounded-full bg-ink/70 px-3 py-1 font-mono text-[0.65rem] uppercase tracking-widest text-paper backdrop-blur">
           {beforeLabel}

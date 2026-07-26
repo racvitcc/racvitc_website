@@ -15,6 +15,16 @@ export const projects: Project[] = [
       "/projects/kadal-karai-2.jpg",
       "/projects/kadal-karai-3.jpg",
     ],
+    // Real cleanup-drive photos for the pinned scene's parallax strips.
+    sceneImages: [
+      "/kk/kk-1.jpg",
+      "/kk/kk-2.jpg",
+      "/kk/kk-3.jpg",
+      "/kk/kk-4.jpg",
+      "/kk/kk-5.jpg",
+      "/kk/kk-6.jpg",
+      "/kk/kk-7.jpg",
+    ],
     stats: [
       { value: 40, suffix: "+", label: "Cleanup drives" },
       { value: 5000, suffix: "kg+", label: "Waste removed" },

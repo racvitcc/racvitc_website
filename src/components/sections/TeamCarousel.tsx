@@ -7,7 +7,6 @@ import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { coreTeam } from "@/content/team";
 import Placeholder from "@/components/ui/Placeholder";
-import Badge from "@/components/ui/Badge";
 import { clamp } from "@/lib/utils";
 
 /**
@@ -77,15 +76,10 @@ export default function TeamCarousel() {
                   style={{ transform: `scale(${s.scale})`, opacity: s.opacity }}
                 >
                   <div className="relative aspect-[3/4] overflow-hidden rounded-3xl border border-line">
-                    <Placeholder seed={m.role} label={m.name} kind="person" className="h-full w-full" />
+                    <Placeholder seed={m.role} label={m.name} src={m.img} kind="person" className="h-full w-full" />
                     <span className="absolute left-3 top-3 rounded-full bg-paper/90 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-widest text-ink">
                       {m.year}
                     </span>
-                    {!m.confirmed && (
-                      <span className="absolute right-3 top-3">
-                        <Badge tone="ink">Seat filling</Badge>
-                      </span>
-                    )}
                   </div>
                   <div className="text-center">
                     <h3 className="font-display text-2xl text-ink">{m.name}</h3>

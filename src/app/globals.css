@@ -266,6 +266,32 @@ html.lenis body {
   .jj-petal { animation: none; opacity: 0; }
 }
 
+/* Kadal Karai — ocean scene. Caustic light shimmer drifting across the stage
+   plus sliding wave bands at the waterline. */
+@keyframes kk-caustics {
+  0%, 100% { background-position: 0% 0%, 0% 0%; }
+  50% { background-position: 42% 24%, -32% 14%; }
+}
+.kk-caustics {
+  background:
+    radial-gradient(60% 42% at 30% 32%, rgba(143, 233, 221, 0.12), transparent 70%),
+    radial-gradient(52% 36% at 72% 62%, rgba(95, 208, 197, 0.09), transparent 72%);
+  background-size: 200% 200%, 180% 180%;
+  mix-blend-mode: screen;
+  animation: kk-caustics 15s ease-in-out infinite;
+}
+@keyframes kk-wave-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.kk-wave {
+  width: 200%;
+  animation: kk-wave-slide var(--kk-wave-dur, 18s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kk-caustics, .kk-wave { animation: none; }
+}
+
 /* ============================================================
    Keyframes
    ============================================================ */

@@ -18,8 +18,8 @@ interface Pop { event: ClubEvent; x: number; y: number; placement: "top" | "bott
 /** Rich month calendar: coloured event chips (leaf = upcoming, gold = past),
  *  hover rich-preview popover, a bold detail card, and a "next up" rail. */
 export default function EventsCalendar() {
-  const [cursor, setCursor] = useState(new Date(2026, 6, 1));
-  const [selected, setSelected] = useState<ClubEvent | null>(events.find((e) => e.id === "kadal-karai-jul") ?? null);
+  const [cursor, setCursor] = useState(new Date(2026, 7, 1));
+  const [selected, setSelected] = useState<ClubEvent | null>(events.find((e) => e.id === "kadal-karai-aug") ?? events[0] ?? null);
   const [pop, setPop] = useState<Pop | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = typeof document !== "undefined";
@@ -107,7 +107,7 @@ export default function EventsCalendar() {
         <article className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-paper-2 lg:col-span-4">
           <div className="relative aspect-[16/9] overflow-hidden">
             <Parallax amount={8} className="!absolute inset-x-0 -inset-y-[16%]">
-              <Placeholder seed={selected.id} label={selected.title} kind="scene" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+              <Placeholder seed={selected.id} src={selected.images[0]} label={selected.title} kind="scene" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
             </Parallax>
             <div className="absolute inset-0 bg-gradient-to-t from-ink/50 to-transparent" />
             <span className={cn("absolute left-3 top-3 rounded-full px-2.5 py-1 font-mono text-[0.55rem] uppercase tracking-widest", selected.type === "upcoming" ? "bg-leaf text-forest" : "bg-gold text-ink")}>{selected.type}</span>

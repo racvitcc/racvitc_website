@@ -5,7 +5,6 @@ import { coreTeam } from "@/content/team";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import Placeholder from "@/components/ui/Placeholder";
-import Badge from "@/components/ui/Badge";
 import Eyebrow from "@/components/ui/Eyebrow";
 
 /**
@@ -48,9 +47,8 @@ export default function TeamScroll() {
   const cards = coreTeam.map((m, i) => (
     <article key={m.role} className="group flex w-[200px] shrink-0 flex-col gap-3 sm:w-[230px]">
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-line">
-        <Placeholder seed={m.role} label={m.name} kind="person" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+        <Placeholder seed={m.role} label={m.name} src={m.img} kind="person" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
         <span className="absolute left-2.5 top-2.5 rounded-full bg-paper/90 px-2 py-0.5 font-mono text-[0.55rem] uppercase tracking-widest text-ink">{m.year}</span>
-        {!m.confirmed && <span className="absolute right-2.5 top-2.5"><Badge tone="ink">Seat filling</Badge></span>}
         <span className="absolute bottom-2.5 right-2.5 font-mono text-[0.7rem] text-paper/80">{String(i + 1).padStart(2, "0")}</span>
       </div>
       <div>

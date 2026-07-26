@@ -64,6 +64,8 @@ export interface Project {
   tagline: string;
   paragraphs: string[];
   images: string[];
+  /** Real photos for the pinned scene's parallax strips. */
+  sceneImages?: string[];
   stats?: { value: number; suffix: string; label: string }[];
 }
 

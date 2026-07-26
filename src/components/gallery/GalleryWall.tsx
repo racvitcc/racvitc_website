@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { Play, Images, Award as AwardIcon, X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { gallery, galleryTags } from "@/content/gallery";
 import type { GalleryItem } from "@/content/types";
-import Placeholder from "@/components/ui/Placeholder";
 import { gsap } from "@/lib/gsap";
 import { useGsapContext } from "@/hooks/useGsapContext";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
@@ -71,6 +70,36 @@ function Fastener({ kind, color }: { kind: FastenerKind; color: string }) {
   );
 }
 
+/** Real media for a card. Photos/albums/awards → <img>; videos → a muted,
+ *  metadata-only <video> whose first frame acts as the poster. `fit="contain"`
+ *  is used for awards so the whole certificate stays readable. */
+function CardMedia({
+  item,
+  className,
+  fit = "cover",
+}: {
+  item: GalleryItem;
+  className?: string;
+  fit?: "cover" | "contain";
+}) {
+  const object = fit === "contain" ? "object-contain" : "object-cover";
+  if (item.type === "video") {
+    return (
+      <video
+        src={`${item.src}#t=0.5`}
+        muted
+        playsInline
+        preload="metadata"
+        className={cn("h-full w-full", object, className)}
+      />
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={item.src} alt={item.caption} loading="lazy" className={cn("h-full w-full", object, className)} />
+  );
+}
+
 function Caption({ item, light }: { item: GalleryItem; light?: boolean }) {
   return (
     <div className="mt-2 flex flex-col gap-0.5 px-1 text-left">
@@ -115,7 +144,9 @@ export default function GalleryWall() {
       ease: "power3.out",
       stagger: 0.05,
       immediateRender: false,
-      scrollTrigger: { trigger: scope.current, start: "top 92%", once: true },
+      // Trigger on the first card (scoped by gsap.context) rather than the
+      // scope ref, which isn't declared until this hook returns.
+      scrollTrigger: { trigger: ".gw-card", start: "top 92%", once: true },
     });
   }, [visibleItems.length]);
 
@@ -242,7 +273,7 @@ export default function GalleryWall() {
                     {item.type === "photo" && (
                       <div className="rounded-[3px] p-2.5 pb-4 shadow-[0_18px_40px_-24px_rgba(26,26,26,0.55)]" style={{ background: d.tint }}>
                         <div className="gw-img relative aspect-[4/3] overflow-hidden">
-                          <Placeholder seed={item.id} label={item.tag} kind="scene" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+                          <CardMedia item={item} className="transition-transform duration-700 group-hover:scale-105" />
                         </div>
                         <Caption item={item} />
                       </div>
@@ -254,7 +285,7 @@ export default function GalleryWall() {
                         <span className="pointer-events-none absolute inset-y-2.5 left-1 w-1.5 bg-[repeating-linear-gradient(to_bottom,transparent_0_4px,rgba(255,255,255,0.85)_4px_9px)]" />
                         <span className="pointer-events-none absolute inset-y-2.5 right-1 w-1.5 bg-[repeating-linear-gradient(to_bottom,transparent_0_4px,rgba(255,255,255,0.85)_4px_9px)]" />
                         <div className="gw-img relative aspect-[16/10] overflow-hidden rounded-[1px]">
-                          <Placeholder seed={item.id} label={item.tag} kind="scene" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+                          <CardMedia item={item} className="transition-transform duration-700 group-hover:scale-105" />
                           <span className="absolute inset-0 flex items-center justify-center">
                             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-paper/90 text-ink transition-transform duration-300 group-hover:scale-110">
                               <Play className="h-6 w-6 translate-x-0.5" fill="currentColor" />
@@ -275,7 +306,7 @@ export default function GalleryWall() {
                         <span className="absolute inset-0 -translate-x-2 -rotate-[4deg] rounded-[3px] bg-white shadow-md" />
                         <div className="relative rounded-[3px] p-2.5 pb-4 shadow-[0_18px_40px_-24px_rgba(26,26,26,0.55)]" style={{ background: d.tint }}>
                           <div className="gw-img relative aspect-[4/3] overflow-hidden">
-                            <Placeholder seed={item.id} label={item.tag} kind="scene" className="h-full w-full transition-transform duration-700 group-hover:scale-105" />
+                            <CardMedia item={item} className="transition-transform duration-700 group-hover:scale-105" />
                             <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-paper/90 px-2 py-1 font-mono text-[0.6rem] text-ink">
                               <Images className="h-3 w-3" /> {item.album?.length}
                             </span>
@@ -290,7 +321,7 @@ export default function GalleryWall() {
                       <div className="rounded-[3px] p-2 shadow-[0_18px_40px_-22px_rgba(120,90,10,0.6)]" style={{ background: "linear-gradient(145deg,#f7dd7e,#e4b53d)" }}>
                         <div className="rounded-[2px] border-2 border-[#e8c34a] bg-[#fffdf5] p-3">
                           <div className="gw-img relative flex aspect-[4/3] items-center justify-center overflow-hidden">
-                            <Placeholder seed={item.id} kind="award" className="h-full w-full" />
+                            <CardMedia item={item} fit="contain" />
                             <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-gold/90 px-2 py-1 font-mono text-[0.6rem] text-ink">
                               <AwardIcon className="h-3 w-3" /> Award
                             </span>
@@ -331,13 +362,19 @@ export default function GalleryWall() {
             <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" onClick={close} data-cursor="close" />
             <div ref={figureRef} className="relative z-10 w-full max-w-4xl">
               <div className="overflow-hidden rounded-3xl border border-white/10 bg-paper-2">
-                <div className="aspect-video">
-                  <Placeholder
-                    seed={active.id}
-                    label={active.type === "award" ? undefined : active.tag}
-                    kind={active.type === "award" ? "award" : "scene"}
-                    className="h-full w-full"
-                  />
+                <div className="aspect-video bg-ink">
+                  {active.type === "video" ? (
+                    <video
+                      src={active.src}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={active.src} alt={active.caption} className="h-full w-full object-contain" />
+                  )}
                 </div>
                 <div className="flex items-center justify-between p-5">
                   <div>

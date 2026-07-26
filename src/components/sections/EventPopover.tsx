@@ -56,7 +56,7 @@ export default function EventPopover({ event, x, y, placement, onEnter, onLeave 
           {event.images.map((img, i) => (
             <div key={i} className="min-w-0 flex-[0_0_100%]">
               <div className="aspect-[16/10]">
-                <Placeholder seed={img} label={event.title} kind="scene" className="h-full w-full" />
+                <Placeholder seed={img} src={img} label={event.title} kind="scene" className="h-full w-full" />
               </div>
             </div>
           ))}

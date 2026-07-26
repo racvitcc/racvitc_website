@@ -22,10 +22,10 @@ import { greenRotaractors } from "@/content/join";
 import { scatterSets } from "@/content/gallery";
 import { events, nextKadalKaraiEvent } from "@/content/events";
 import { signatureProject } from "@/content/projects";
-import { sceneUrl, formatEventDate } from "@/lib/utils";
+import { formatEventDate } from "@/lib/utils";
 import { Calendar, Award, Waves, ArrowRight } from "lucide-react";
 
-const eventSlides = events.map((e) => ({ src: sceneUrl(e.id), title: e.title }));
+const eventSlides = events.map((e) => ({ src: e.images[0], title: e.title }));
 
 export default function Home() {
   return (
@@ -90,6 +90,8 @@ export default function Home() {
               <BeforeAfterSlider
                 beforeSeed="kadal-before"
                 afterSeed="kadal-after"
+                beforeSrc="/kk/before.jpg"
+                afterSrc="/kk/after.jpeg"
                 beforeLabel="Before the drive"
                 afterLabel="After the drive"
               />

@@ -8,6 +8,8 @@ interface Props {
   className?: string;
   /** When false, always render the branded fallback (no photo). */
   photo?: boolean;
+  /** Real image path — overrides the deterministic stock photo when provided. */
+  src?: string;
 }
 
 function initials(name: string) {
@@ -24,7 +26,7 @@ const photoUrl = (seed: string, kind: "person" | "scene") =>
  * fallback, so nothing is ever a blank grey box and the fallback shows if the
  * network image fails. Swap `photoUrl` / pass real paths when assets arrive.
  */
-export default function Placeholder({ seed, label, kind = "person", className, photo = true }: Props) {
+export default function Placeholder({ seed, label, kind = "person", className, photo = true, src }: Props) {
   const h = 90 + Math.round(seededRandom(seed) * 60);
   const isUnknown = !label || /announced|to be/i.test(label);
   const showPhoto = photo && kind !== "award";
@@ -51,7 +53,7 @@ export default function Placeholder({ seed, label, kind = "person", className, p
       {/* real photo on top (covers fallback when it loads) */}
       {showPhoto && (
         <img
-          src={photoUrl(seed, kind === "person" ? "person" : "scene")}
+          src={src ?? photoUrl(seed, kind === "person" ? "person" : "scene")}
           alt={label ?? ""}
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover"
