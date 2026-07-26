@@ -51,23 +51,10 @@ export default function GrowthTree() {
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Defer the (desktop-only) scroll-scrubbed video until the section nears the
-  // viewport — otherwise its file downloads on page load and tanks LCP/SI.
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)").matches;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!desktop || reduced || !sectionRef.current) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setMode("video");
-          io.disconnect();
-        }
-      },
-      { rootMargin: "600px 0px" } // warm up a little before it's on screen
-    );
-    io.observe(sectionRef.current);
-    return () => io.disconnect();
+    if (desktop && !reduced) setMode("video");
   }, []);
 
   // iOS Safari won't seek a video reliably until a play/pause cycle has run once.
@@ -150,7 +137,7 @@ export default function GrowthTree() {
                 ref={videoRef}
                 muted
                 playsInline
-                preload="none"
+                preload="auto"
                 poster="/club/growth-tree-poster.jpg"
                 src="/club/growth-tree.mp4"
                 aria-hidden="true"
