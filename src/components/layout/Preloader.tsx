@@ -59,6 +59,25 @@ export default function Preloader() {
       return;
     }
 
+    // Mobile: the full choreography caps LCP/Speed-Index on throttled phones,
+    // so run a quick branded splash (show the club logo + name, then reveal)
+    // instead. Desktop keeps the full cinematic sequence below.
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      const ctx = gsap.context(() => {
+        const imgs = gsap.utils.toArray<HTMLElement>(".pl-img");
+        const last = imgs[imgs.length - 1];
+        if (last) {
+          gsap.set(last, { clipPath: CLIP_FULL });
+          const inner = last.querySelector("img");
+          if (inner) gsap.set(inner, { scale: 1 });
+        }
+        const tl = gsap.timeline({ onComplete: finish, delay: 0.1 });
+        tl.from(headerRef.current, { opacity: 0, y: 16, duration: 0.4, ease: "power2.out" })
+          .to(rootRef.current, { clipPath: CLIP_HIDDEN_TOP, duration: 0.5, ease: "power3.inOut" }, "+=0.45");
+      }, rootRef);
+      return () => ctx.revert();
+    }
+
     let headerSplit: SplitText | undefined;
     let copySplit: SplitText | undefined;
 
