@@ -1,6 +1,5 @@
 import { clubTimeline } from "@/content/history";
 import Reveal from "@/components/motion/Reveal";
-import Placeholder from "@/components/ui/Placeholder";
 import { cn } from "@/lib/utils";
 
 /**
@@ -46,21 +45,16 @@ export default function ClubTimeline() {
               {/* card */}
               <div className="sm:w-[calc(50%_-_2.5rem)]">
                 <div className="rounded-3xl border border-line bg-paper-2 p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-line">
-                      <Placeholder seed={ring.year} label={ring.president} kind="person" className="h-full w-full" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs" style={{ color }}>{ring.year}</span>
+                      {ring.charter && (
+                        <span className="rounded-full bg-forest/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-wider text-forest">
+                          Charter
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs" style={{ color }}>{ring.year}</span>
-                        {ring.charter && (
-                          <span className="rounded-full bg-forest/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-wider text-forest">
-                            Charter
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-display text-xl text-ink">{ring.president}</h3>
-                    </div>
+                    <h3 className="font-display text-xl text-ink">{ring.president}</h3>
                   </div>
 
                   {hasAwards ? (
