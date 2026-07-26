@@ -4,13 +4,15 @@ import Avenues from "@/components/sections/Avenues";
 import TeamScroll from "@/components/sections/TeamScroll";
 import KadalKaraiScene from "@/components/sections/KadalKaraiScene";
 import BeforeAfterSlider from "@/components/sections/BeforeAfterSlider";
-import EventsCalendar from "@/components/sections/EventsCalendar";
-import GalleryWall from "@/components/gallery/GalleryWall";
 import GrowthTree from "@/components/club/GrowthTree";
-import RegistrationBlock from "@/components/sections/RegistrationBlock";
-import JoinJourney from "@/components/sections/JoinJourney";
-import PartnerTeaser from "@/components/sections/PartnerTeaser";
-import FAQ from "@/components/sections/FAQ";
+import {
+  LazyGalleryWall,
+  LazyEventsCalendar,
+  LazyJoinJourney,
+  LazyRegistrationBlock,
+  LazyPartnerTeaser,
+  LazyFAQ,
+} from "@/components/sections/LazyHomeSections";
 import Section from "@/components/ui/Section";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/motion/Reveal";
@@ -108,7 +110,7 @@ export default function Home() {
             <DiagonalCarousel items={eventSlides} slideSize={240} />
           </div>
           <div className="mt-10">
-            <EventsCalendar />
+            <LazyEventsCalendar />
           </div>
         </Reveal>
       </Section>
@@ -122,7 +124,7 @@ export default function Home() {
           <ImageScatter data={scatterSets} />
         </div>
         <div className="u-container mt-6">
-          <GalleryWall />
+          <LazyGalleryWall />
         </div>
       </Section>
 
@@ -135,18 +137,18 @@ export default function Home() {
           </div>
 
           <Reveal>
-            <JoinJourney />
+            <LazyJoinJourney />
           </Reveal>
         </Section>
-        <RegistrationBlock />
+        <LazyRegistrationBlock />
       </section>
 
       {/* PARTNER */}
       <div id="partner">
-        <PartnerTeaser />
+        <LazyPartnerTeaser />
       </div>
 
-      <FAQ limit={6} />
+      <LazyFAQ limit={6} />
     </>
   );
 }

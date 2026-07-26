@@ -41,6 +41,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Claude Code harness / skill artifacts (not part of the site)
+/.claude/
+/.agents/
+/skills-lock.json
+
 # unused create-next-app boilerplate svgs
 /public/file.svg
 /public/globe.svg
