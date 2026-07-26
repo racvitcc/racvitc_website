@@ -5,11 +5,10 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import { Flip } from "gsap/Flip";
 import { CustomEase } from "gsap/CustomEase";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, SplitText, Flip, CustomEase);
+  gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
   ScrollTrigger.config({ ignoreMobileResize: true });
   // Snappy "hop" ease (used by the preloader's reveal choreography).
   CustomEase.create("hop", "0.9, 0, 0.1, 1");
@@ -36,4 +35,4 @@ export const STAGGER = {
   loose: 0.09,
 } as const;
 
-export { gsap, ScrollTrigger, SplitText, Flip, CustomEase };
+export { gsap, ScrollTrigger, SplitText, CustomEase };

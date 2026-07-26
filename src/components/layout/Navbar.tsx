@@ -84,6 +84,7 @@ export default function Navbar() {
                 <Link
                   key={item.target}
                   href={href}
+                  prefetch={isAnchor ? undefined : false}
                   onClick={isAnchor ? (e) => handleAnchor(e, item.target) : undefined}
                   data-cursor="link"
                   className={cn(
@@ -136,6 +137,7 @@ export default function Navbar() {
               <Link
                 key={item.target}
                 href={href}
+                prefetch={isAnchor ? undefined : false}
                 onClick={(e) => {
                   if (isAnchor && onHome) {
                     e.preventDefault();
