@@ -52,9 +52,10 @@ export default function GrowthTree() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)").matches;
+    // The scroll-scrubbed video runs on mobile as well as desktop now; only
+    // reduced-motion users get the static ClubTimeline fallback.
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (desktop && !reduced) setMode("video");
+    if (!reduced) setMode("video");
   }, []);
 
   // iOS Safari won't seek a video reliably until a play/pause cycle has run once.
@@ -126,12 +127,13 @@ export default function GrowthTree() {
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">{ABOUT_INTRO}</p>
         </div>
 
-        <div className="u-container grid w-full flex-1 grid-cols-12 items-center gap-10">
+        <div className="u-container grid w-full flex-1 grid-cols-1 items-center gap-5 lg:grid-cols-12 lg:gap-10">
           {/* Video panel - framed, not seamless: the footage's own studio
               backdrop doesn't match the page's cream tone, so it reads as a
               deliberate panel (rounded, shadowed) rather than pretending to
-              have no edges. */}
-          <div className="col-span-6">
+              have no edges. On mobile it's capped narrower so the year callout
+              below it still fits inside the pinned viewport. */}
+          <div className="mx-auto w-full max-w-[16rem] sm:max-w-xs lg:col-span-6 lg:mx-0 lg:max-w-none">
             <div className="overflow-hidden rounded-3xl border border-line shadow-[0_20px_60px_-20px_rgba(26,26,26,0.25)]">
               <video
                 ref={videoRef}
@@ -147,7 +149,7 @@ export default function GrowthTree() {
           </div>
 
           {/* Active year callout */}
-          <div className="col-span-6">
+          <div className="lg:col-span-6">
             <span className="font-mono text-xs uppercase tracking-widest text-ink-faint">
               Year {String(active + 1).padStart(2, "0")} / {COUNT}
             </span>
@@ -187,7 +189,7 @@ export default function GrowthTree() {
             </div>
 
             {/* progress rail */}
-            <div className="mt-8 flex gap-1.5">
+            <div className="mt-5 flex gap-1.5 lg:mt-8">
               {clubTimeline.map((r, i) => (
                 <span
                   key={r.year}
@@ -198,7 +200,7 @@ export default function GrowthTree() {
             </div>
 
             {/* roots */}
-            <div className="mt-10 flex flex-wrap gap-x-8 gap-y-2 border-t border-line pt-6 text-xs text-ink-soft">
+            <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 border-t border-line pt-4 text-xs text-ink-soft lg:mt-10 lg:pt-6">
               <span className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-forest" /> Rooted in the Rotary Club of Chennai Spotlight
               </span>
