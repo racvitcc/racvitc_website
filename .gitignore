@@ -41,6 +41,19 @@ yarn-error.log*
 # vercel
 .vercel
 
+# unused create-next-app boilerplate svgs
+/public/file.svg
+/public/globe.svg
+/public/next.svg
+/public/vercel.svg
+/public/window.svg
+
+# raw team source photos (processed versions live in /public/team) — keep *_logo.png
+/public/assets/*.jpg
+/public/assets/*.jpeg
+/public/assets/Nirmal- Cheif Sergeant_.png
+/public/assets/Joint Secretary - TEJAHARSHINI N V.png
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
