@@ -111,12 +111,12 @@ export function ImageScatter({
       return tl;
     }
 
-    state.activeCards = createCards(0);
     galleryHeading.textContent = data[0]?.heading || "";
     gsap.set(galleryHeading, { opacity: 1 });
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let intervalId: ReturnType<typeof setInterval> | undefined;
+    let started = false;
     function nextSection() {
       if (state.isAnimating) return;
       const target = (state.currentSection + 1) % data.length;
@@ -128,11 +128,25 @@ export function ImageScatter({
         state.isAnimating = false;
       });
     }
-    if (!reduced) intervalId = setInterval(nextSection, interval);
 
-    const onResize = () => { state.activeCards.forEach(({ element }) => element.remove()); updateViewport(); state.activeCards = createCards(state.currentSection); };
+    // Only build the (eager-loaded) photo cards and run the cycle animation
+    // while the section is near the viewport — otherwise it churns the main
+    // thread and downloads every image far below the fold, tanking LCP/TBT.
+    function ensureRunning() {
+      if (!started) { started = true; state.activeCards = createCards(0); }
+      if (!reduced && !intervalId) intervalId = setInterval(nextSection, interval);
+    }
+    function pause() { if (intervalId) { clearInterval(intervalId); intervalId = undefined; } }
+    const io = new IntersectionObserver(
+      (entries) => (entries.some((e) => e.isIntersecting) ? ensureRunning() : pause()),
+      { rootMargin: "200px 0px" }
+    );
+    io.observe(containerRef.current);
+
+    const onResize = () => { if (!started) return; state.activeCards.forEach(({ element }) => element.remove()); updateViewport(); state.activeCards = createCards(state.currentSection); };
     window.addEventListener("resize", onResize);
     return () => {
+      io.disconnect();
       window.removeEventListener("resize", onResize);
       if (intervalId) clearInterval(intervalId);
       state.activeCards.forEach(({ element }) => element.remove());

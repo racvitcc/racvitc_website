@@ -83,20 +83,12 @@ function CardMedia({
   fit?: "cover" | "contain";
 }) {
   const object = fit === "contain" ? "object-contain" : "object-cover";
-  if (item.type === "video") {
-    return (
-      <video
-        src={`${item.src}#t=0.5`}
-        muted
-        playsInline
-        preload="metadata"
-        className={cn("h-full w-full", object, className)}
-      />
-    );
-  }
+  // Videos show a lightweight poster still on the board (no video bytes until
+  // the lightbox opens); the poster lives next to the mp4 as <name>.jpg.
+  const displaySrc = item.type === "video" ? item.src.replace(/\.mp4$/, ".jpg") : item.src;
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={item.src} alt={item.caption} loading="lazy" className={cn("h-full w-full", object, className)} />
+    <img src={displaySrc} alt={item.caption} loading="lazy" className={cn("h-full w-full", object, className)} />
   );
 }
 
