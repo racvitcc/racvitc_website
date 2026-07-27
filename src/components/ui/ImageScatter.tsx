@@ -45,12 +45,24 @@ export function ImageScatter({
     const viewport = { centerX: 0, centerY: 0, rangeMin: 0, rangeMax: 0 };
     const state = { activeCards: [] as { element: HTMLDivElement; centerX: number; centerY: number }[], currentSection: 0, isAnimating: false };
 
+    // Effective card size + scatter radius, shrunk on small screens so the
+    // cards don't overflow a phone or bury the heading. Recomputed on resize.
+    const aspect = cardHeight / cardWidth;
+    let cw = cardWidth;
+    let ch = cardHeight;
+
     function updateViewport() {
       const c = containerRef.current!;
-      viewport.centerX = c.clientWidth / 2;
-      viewport.centerY = c.clientHeight / 2;
-      viewport.rangeMin = Math.min(c.clientWidth, c.clientHeight) * 0.35;
-      viewport.rangeMax = Math.min(c.clientWidth, c.clientHeight) * 0.7;
+      const w = c.clientWidth;
+      const h = c.clientHeight;
+      const small = w < 640;
+      cw = small ? Math.max(116, Math.round(w * 0.4)) : cardWidth;
+      ch = Math.round(cw * aspect);
+      viewport.centerX = w / 2;
+      viewport.centerY = h / 2;
+      const base = Math.min(w, h);
+      viewport.rangeMin = base * (small ? 0.26 : 0.35);
+      viewport.rangeMax = base * (small ? 0.5 : 0.7);
     }
     updateViewport();
 
@@ -59,31 +71,34 @@ export function ImageScatter({
       const h = containerRef.current?.clientHeight || window.innerHeight;
       const d = { left: centerX, right: w - centerX, top: centerY, bottom: h - centerY };
       const min = Math.min(...Object.values(d));
-      const ov = () => (Math.random() - 0.5) * 400;
-      if (min === d.left) return { x: -cardWidth - 100 - Math.random() * 200, y: centerY - cardHeight / 2 + ov() };
-      if (min === d.right) return { x: w + 50 + Math.random() * 200, y: centerY - cardHeight / 2 + ov() };
-      if (min === d.top) return { x: centerX - cardWidth / 2 + ov(), y: -cardHeight - 100 - Math.random() * 200 };
-      return { x: centerX - cardWidth / 2 + ov(), y: h + 50 + Math.random() * 200 };
+      const ov = () => (Math.random() - 0.5) * Math.min(400, w * 0.6);
+      if (min === d.left) return { x: -cw - 100 - Math.random() * 200, y: centerY - ch / 2 + ov() };
+      if (min === d.right) return { x: w + 50 + Math.random() * 200, y: centerY - ch / 2 + ov() };
+      if (min === d.top) return { x: centerX - cw / 2 + ov(), y: -ch - 100 - Math.random() * 200 };
+      return { x: centerX - cw / 2 + ov(), y: h + 50 + Math.random() * 200 };
     }
 
     function createCards(sectionIndex: number) {
       const cards: { element: HTMLDivElement; centerX: number; centerY: number }[] = [];
       const sectionData = data[sectionIndex];
       if (!sectionData?.images.length) return cards;
-      sectionData.images.forEach((src) => {
+      const count = sectionData.images.length;
+      sectionData.images.forEach((src, i) => {
         const card = document.createElement("div");
-        card.className = "absolute rounded-2xl border-8 border-paper-2 shadow-xl overflow-hidden will-change-transform";
-        card.style.width = `${cardWidth}px`;
-        card.style.height = `${cardHeight}px`;
+        card.className = "absolute rounded-2xl border-4 sm:border-8 border-paper-2 shadow-xl overflow-hidden will-change-transform";
+        card.style.width = `${cw}px`;
+        card.style.height = `${ch}px`;
         const img = document.createElement("img");
         img.src = src;
         img.className = "w-full h-full object-cover rounded-lg pointer-events-none";
         card.appendChild(img);
-        const angle = Math.random() * Math.PI * 2;
+        // Spread cards evenly around the heading (with a little jitter) so they
+        // never bunch into one corner — the fully-random angle looked buggy.
+        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * (Math.PI / count);
         const radius = viewport.rangeMin + Math.random() * (viewport.rangeMax - viewport.rangeMin);
         const centerX = viewport.centerX + Math.cos(angle) * radius;
         const centerY = viewport.centerY + Math.sin(angle) * radius;
-        gsap.set(card, { left: centerX - cardWidth / 2, top: centerY - cardHeight / 2, rotation: Math.random() * 50 - 25 });
+        gsap.set(card, { left: centerX - cw / 2, top: centerY - ch / 2, rotation: Math.random() * 50 - 25 });
         gallery.appendChild(card);
         cards.push({ element: card, centerX, centerY });
       });
@@ -106,7 +121,7 @@ export function ImageScatter({
       entering.forEach(({ element, centerX, centerY }) => {
         const edge = getEdgePosition(centerX, centerY);
         gsap.set(element, { left: edge.x, top: edge.y, rotation: Math.random() * 180 - 90 });
-        tl.to(element, { left: centerX - cardWidth / 2, top: centerY - cardHeight / 2, rotation: Math.random() * 50 - 25, duration: animationDuration, ease: "power2.out" }, animationOverlap);
+        tl.to(element, { left: centerX - cw / 2, top: centerY - ch / 2, rotation: Math.random() * 50 - 25, duration: animationDuration, ease: "power2.out" }, animationOverlap);
       });
       return tl;
     }
