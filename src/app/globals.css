@@ -165,6 +165,17 @@ html.lenis body {
   background: var(--line);
 }
 
+/* Cream halo so a heading laid over photos (e.g. the image-scatter preview)
+   stays legible no matter what — the stacked paper-coloured shadows build an
+   opaque-ish plate hugging each glyph, separating dark ink text from any image
+   behind it. */
+.u-text-halo {
+  text-shadow:
+    0 0 2px var(--paper), 0 0 4px var(--paper), 0 0 6px var(--paper),
+    0 0 10px var(--paper), 0 0 16px var(--paper), 0 0 24px var(--paper),
+    0 0 32px var(--paper);
+}
+
 /* Text stroke / outline display type used in big statements */
 .u-outline-ink {
   color: transparent;

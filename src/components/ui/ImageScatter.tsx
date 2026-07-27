@@ -171,7 +171,7 @@ export function ImageScatter({
   return (
     <section ref={containerRef} className={cn("relative flex h-full w-full items-center justify-center overflow-hidden bg-transparent", className)} {...props}>
       <div ref={galleryRef} className="pointer-events-none absolute inset-0" />
-      <h1 ref={headingRef} className="u-display z-10 w-[90%] text-center text-[clamp(2rem,6vw,5rem)] leading-tight tracking-tight text-ink will-change-[opacity] md:w-[55%]" />
+      <h1 ref={headingRef} className="u-display u-text-halo relative z-10 w-[90%] text-center text-[clamp(2rem,6vw,5rem)] leading-tight tracking-tight text-ink will-change-[opacity] md:w-[55%]" />
     </section>
   );
 }
