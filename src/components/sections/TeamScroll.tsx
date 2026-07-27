@@ -18,9 +18,10 @@ export default function TeamScroll() {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 768px)").matches;
+    // Pinned scroll-jack (vertical scroll → horizontal card travel) runs on all
+    // viewports; only users who ask for reduced motion get the swipe fallback.
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (desktop && !reduced) setPin(true);
+    if (!reduced) setPin(true);
   }, []);
 
   useIsomorphicLayoutEffect(() => {
@@ -80,7 +81,7 @@ export default function TeamScroll() {
             <Eyebrow number="03">Meet the Team</Eyebrow>
             <h2 className="u-display mt-2 text-[clamp(1.75rem,4vw,3rem)] text-ink">The people behind the impact.</h2>
           </div>
-          <span className="hidden font-mono text-xs uppercase tracking-widest text-ink-faint sm:block">Scroll to meet everyone →</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-ink-faint">Scroll to meet everyone →</span>
         </div>
         <div ref={trackRef} className="flex w-max items-center gap-6 pl-6 pr-24 sm:pl-[8vw]">
           {cards}
