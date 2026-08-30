@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  // Allow Sanity's image CDN (future-proofs any next/image usage; the current
+  // components render Sanity URLs via native <img>).
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
+    ],
+  },
 };
 
 export default nextConfig;

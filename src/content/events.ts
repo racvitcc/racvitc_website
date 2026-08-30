@@ -1,47 +1,56 @@
+import "server-only";
+
+import type { SanityImageSource } from "@sanity/image-url";
+
+import { sanityFetch } from "@/sanity/fetch";
+import { imageUrl } from "@/sanity/image";
+import { EVENTS_QUERY, TAGS } from "@/sanity/queries";
+
 import type { ClubEvent } from "./types";
 
-/** Real club events. Each event carries an images[] array (real photo paths)
- *  that backs both the detail card and the hover-preview carousel (§5.13). */
-export const events: ClubEvent[] = [
-  {
-    id: "kadal-karai-aug",
-    title: "Kadal Karai Beach Cleanup",
-    date: "2026-08-02",
-    time: "06:00 AM – 08:30 AM",
-    location: "Besant Nagar Beach, Chennai",
-    description:
-      "Our signature environmental campaign to restore and protect Chennai's coastline. Join us for a morning of cleanup and community.",
-    images: ["/kk/kk-3.jpg"],
-    type: "upcoming",
-  },
-  {
-    id: "club-expo-jul",
-    title: "Club Expo — RAC VIT Chennai",
-    date: "2026-07-22",
-    time: "Full day",
-    location: "VIT Chennai",
-    description:
-      "The Rotaract Club of VIT Chennai showcased its avenues, projects, and community impact at the campus Club Expo, welcoming new members to the movement.",
-    images: ["/Events/club_expo.jpeg"],
-    type: "past",
-  },
-  {
-    id: "dols-jun",
-    title: "District Officials Learning Seminar (DOLS)",
-    date: "2026-06-06",
-    time: "6 & 7 June 2026",
-    location: "Day 1: Dr. MGR Janaki College · Day 2: Farm Guru",
-    description:
-      "A two-day District Officials Learning Seminar hosted along with the District Rotaract Council, Rotary International District 3234, with our club serving as the Secretary Club. Day 1 at Dr. MGR Janaki College, Day 2 at Farm Guru.",
-    images: ["/Events/dols.jpeg"],
-    type: "past",
-  },
-];
+type RawEvent = {
+  id: string;
+  title: string;
+  date: string;
+  time: string | null;
+  location: string | null;
+  description: string | null;
+  type: "past" | "upcoming";
+  images: SanityImageSource[] | null;
+};
+
+/** All club events from Sanity, newest first. Each carries an images[] of CDN
+ *  URLs that backs the detail card and hover-preview carousel (§5.13). */
+export async function getEvents(): Promise<ClubEvent[]> {
+  let rows: RawEvent[] = [];
+  try {
+    rows = await sanityFetch<RawEvent[]>(EVENTS_QUERY, { tags: [TAGS.events] });
+  } catch (err) {
+    console.warn("[content] getEvents failed — rendering no events.", err);
+    return [];
+  }
+  return rows.map((e) => ({
+    id: e.id,
+    title: e.title,
+    date: e.date,
+    time: e.time ?? "",
+    location: e.location ?? "",
+    description: e.description ?? "",
+    type: e.type,
+    images: (e.images ?? [])
+      .map((img) => imageUrl(img, 1600))
+      .filter((u): u is string => Boolean(u)),
+  }));
+}
 
 /** Nearest upcoming Kadal Karai date — lets the Signature Projects section
- *  (§5.9) cross-link to a real entry on the events calendar instead of
- *  floating disconnected from it. */
-export const nextKadalKaraiEvent =
-  events
-    .filter((e) => e.type === "upcoming" && e.title.toLowerCase().includes("kadal karai"))
-    .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null;
+ *  (§5.9) cross-link to a real entry on the events calendar. */
+export function nextKadalKaraiEventFrom(events: ClubEvent[]): ClubEvent | null {
+  return (
+    events
+      .filter(
+        (e) => e.type === "upcoming" && e.title.toLowerCase().includes("kadal karai")
+      )
+      .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
+  );
+}

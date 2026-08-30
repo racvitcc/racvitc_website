@@ -6,6 +6,7 @@
 // above-the-fold sections stay statically imported in page.tsx.
 import dynamic from "next/dynamic";
 import LazySection from "@/components/motion/LazySection";
+import type { ClubEvent, GalleryItem } from "@/content/types";
 
 const GalleryWallD = dynamic(() => import("@/components/gallery/GalleryWall"), { ssr: false });
 const EventsCalendarD = dynamic(() => import("@/components/sections/EventsCalendar"), { ssr: false });
@@ -14,11 +15,11 @@ const RegistrationBlockD = dynamic(() => import("@/components/sections/Registrat
 const PartnerTeaserD = dynamic(() => import("@/components/sections/PartnerTeaser"), { ssr: false });
 const FAQD = dynamic(() => import("@/components/sections/FAQ"), { ssr: false });
 
-export function LazyGalleryWall() {
-  return <LazySection minHeight="80vh"><GalleryWallD /></LazySection>;
+export function LazyGalleryWall({ items }: { items: GalleryItem[] }) {
+  return <LazySection minHeight="80vh"><GalleryWallD items={items} /></LazySection>;
 }
-export function LazyEventsCalendar() {
-  return <LazySection minHeight="60vh"><EventsCalendarD /></LazySection>;
+export function LazyEventsCalendar({ events }: { events: ClubEvent[] }) {
+  return <LazySection minHeight="60vh"><EventsCalendarD events={events} /></LazySection>;
 }
 export function LazyJoinJourney() {
   return <LazySection minHeight="70vh"><JoinJourneyD /></LazySection>;

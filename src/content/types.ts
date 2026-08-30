@@ -94,6 +94,7 @@ export interface GalleryItem {
   caption: string;
   year: string;
   tag: string;
-  src: string; // image/poster path
+  src: string; // image URL, or the video file URL for type: 'video'
+  poster?: string; // still shown on the board for videos
   album?: string[]; // for type: 'album'
 }

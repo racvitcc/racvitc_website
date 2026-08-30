@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Clock, MapPin, ArrowUpRight } from "lucide-react";
-import { events } from "@/content/events";
 import type { ClubEvent } from "@/content/types";
 import Placeholder from "@/components/ui/Placeholder";
 import Parallax from "@/components/motion/Parallax";
@@ -17,7 +16,7 @@ interface Pop { event: ClubEvent; x: number; y: number; placement: "top" | "bott
 
 /** Rich month calendar: coloured event chips (leaf = upcoming, gold = past),
  *  hover rich-preview popover, a bold detail card, and a "next up" rail. */
-export default function EventsCalendar() {
+export default function EventsCalendar({ events }: { events: ClubEvent[] }) {
   const [cursor, setCursor] = useState(new Date(2026, 7, 1));
   const [selected, setSelected] = useState<ClubEvent | null>(events.find((e) => e.id === "kadal-karai-aug") ?? events[0] ?? null);
   const [pop, setPop] = useState<Pop | null>(null);
@@ -29,8 +28,8 @@ export default function EventsCalendar() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
 
-  const byDate = useMemo(() => { const m = new Map<string, ClubEvent>(); events.forEach((e) => m.set(e.date, e)); return m; }, []);
-  const upcoming = useMemo(() => events.filter((e) => e.type === "upcoming").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3), []);
+  const byDate = useMemo(() => { const m = new Map<string, ClubEvent>(); events.forEach((e) => m.set(e.date, e)); return m; }, [events]);
+  const upcoming = useMemo(() => events.filter((e) => e.type === "upcoming").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3), [events]);
   const keyFor = (d: number) => `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
   const openPop = (ev: ClubEvent, el: HTMLElement) => {

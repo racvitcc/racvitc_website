@@ -1,4 +1,4 @@
-import { signatureProject } from "@/content/projects";
+import type { Project } from "@/content/types";
 import Eyebrow from "@/components/ui/Eyebrow";
 import SplitReveal from "@/components/motion/SplitReveal";
 import Counter from "@/components/motion/Counter";
@@ -13,8 +13,9 @@ import { ArrowRight } from "lucide-react";
  * one sanctioned palette break in the site (ocean → seafoam → sand) and an
  * auto-scrolling strip of the real cleanup photos used in the pinned scene.
  */
-export default function KadalKarai() {
-  const p = signatureProject;
+export default function KadalKarai({ project }: { project: Project | null }) {
+  if (!project) return null;
+  const p = project;
   const photos = p.sceneImages ?? [];
   // Duplicate the list so the CSS marquee loops seamlessly at translateX(-50%).
   const marquee = [...photos, ...photos];

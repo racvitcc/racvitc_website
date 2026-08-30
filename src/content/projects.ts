@@ -1,36 +1,55 @@
+import "server-only";
+
+import type { SanityImageSource } from "@sanity/image-url";
+
+import { sanityFetch } from "@/sanity/fetch";
+import { imageUrl } from "@/sanity/image";
+import { PROJECTS_QUERY, TAGS } from "@/sanity/queries";
+
 import type { Project } from "./types";
 
-export const projects: Project[] = [
-  {
-    slug: "kadal-karai",
-    name: "Kadal Karai",
-    tagline: "Preserving Chennai's coastline, one cleanup at a time.",
-    paragraphs: [
-      "Kadal Karai is the flagship environmental initiative of the Rotaract Club of VIT Chennai, dedicated to preserving Chennai's coastline through consistent beach clean-up drives and environmental awareness. Conducted every alternate weekend, the project brings together volunteers who are passionate about protecting marine ecosystems and promoting sustainable living.",
-      "With each cleanup, volunteers remove plastic waste, bottles, packaging materials, and other non-biodegradable debris from the shoreline, restoring cleaner and safer beaches for both people and marine life. Beyond waste collection, Kadal Karai aims to educate participants and the public on the importance of responsible waste disposal, environmental conservation, and collective action.",
-      "More than just a clean-up drive, Kadal Karai has grown into a movement that inspires youth to become active environmental stewards. Through consistency, community participation, and a shared commitment to sustainability, the initiative continues to create a lasting impact — one beach, one volunteer and one cleanup at a time.",
-    ],
-    images: [
-      "/projects/kadal-karai-1.jpg",
-      "/projects/kadal-karai-2.jpg",
-      "/projects/kadal-karai-3.jpg",
-    ],
-    // Real cleanup-drive photos for the pinned scene's parallax strips.
-    sceneImages: [
-      "/kk/kk-1.jpg",
-      "/kk/kk-2.jpg",
-      "/kk/kk-3.jpg",
-      "/kk/kk-4.jpg",
-      "/kk/kk-5.jpg",
-      "/kk/kk-6.jpg",
-      "/kk/kk-7.jpg",
-    ],
-    stats: [
-      { value: 40, suffix: "+", label: "Cleanup drives" },
-      { value: 5000, suffix: "kg+", label: "Waste removed" },
-      { value: 2, suffix: "×", label: "South Asia awards" },
-    ],
-  },
-];
+type RawProject = {
+  slug: string;
+  name: string;
+  tagline: string | null;
+  paragraphs: string[] | null;
+  images: SanityImageSource[] | null;
+  sceneImages: SanityImageSource[] | null;
+  stats: { value: number; suffix: string | null; label: string }[] | null;
+};
 
-export const signatureProject = projects[0];
+const toUrls = (imgs: SanityImageSource[] | null, width: number): string[] =>
+  (imgs ?? [])
+    .map((img) => imageUrl(img, width))
+    .filter((u): u is string => Boolean(u));
+
+/** All projects from Sanity, ordered by `order` then creation time. */
+export async function getProjects(): Promise<Project[]> {
+  let rows: RawProject[] = [];
+  try {
+    rows = await sanityFetch<RawProject[]>(PROJECTS_QUERY, {
+      tags: [TAGS.projects],
+    });
+  } catch (err) {
+    console.warn("[content] getProjects failed — rendering no projects.", err);
+    return [];
+  }
+  return rows.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    tagline: p.tagline ?? "",
+    paragraphs: p.paragraphs ?? [],
+    images: toUrls(p.images, 1600),
+    sceneImages: toUrls(p.sceneImages, 1600),
+    stats: (p.stats ?? []).map((s) => ({
+      value: s.value,
+      suffix: s.suffix ?? "",
+      label: s.label,
+    })),
+  }));
+}
+
+/** The signature project (first by order) — the Kadal Karai showpiece. */
+export function signatureProjectFrom(projects: Project[]): Project | null {
+  return projects[0] ?? null;
+}

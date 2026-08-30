@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Play, Images, Award as AwardIcon, X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
-import { gallery, galleryTags } from "@/content/gallery";
 import type { GalleryItem } from "@/content/types";
 import { gsap } from "@/lib/gsap";
 import { useGsapContext } from "@/hooks/useGsapContext";
@@ -18,6 +17,9 @@ const tagOfType: Record<GalleryItem["type"], string> = {
   album: "Albums",
   award: "Awards",
 };
+
+/** Filter tabs shown across the top of the board. */
+const galleryTags = ["All", "Photos", "Videos", "Awards"] as const;
 
 /** On-brand fastener colours (fern, leaf, gold, cranberry, azure). */
 const FASTENER_COLORS = ["#0b8f3f", "#7ac943", "#ffd700", "#c0392b", "#2b7fc0"];
@@ -84,8 +86,8 @@ function CardMedia({
 }) {
   const object = fit === "contain" ? "object-contain" : "object-cover";
   // Videos show a lightweight poster still on the board (no video bytes until
-  // the lightbox opens); the poster lives next to the mp4 as <name>.jpg.
-  const displaySrc = item.type === "video" ? item.src.replace(/\.mp4$/, ".jpg") : item.src;
+  // the lightbox opens); the poster is the item's `image` field in Sanity.
+  const displaySrc = item.type === "video" ? item.poster ?? item.src : item.src;
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={displaySrc} alt={item.caption} loading="lazy" className={cn("h-full w-full", object, className)} />
@@ -109,16 +111,16 @@ function Caption({ item, light }: { item: GalleryItem; light?: boolean }) {
  * Clicking a card plucks the pin → the paper waves from the bottom up → it
  * FLIP-expands into the lightbox. Reduced motion → static board, instant open.
  */
-export default function GalleryWall() {
+export default function GalleryWall({ items }: { items: GalleryItem[] }) {
   const [filter, setFilter] = useState<string>("All");
   const [active, setActive] = useState<GalleryItem | null>(null);
   const [showAll, setShowAll] = useState(false);
   const INITIAL = 6;
 
-  const decor = useMemo(() => Object.fromEntries(gallery.map((i) => [i.id, decorFor(i.id)])), []);
+  const decor = useMemo(() => Object.fromEntries(items.map((i) => [i.id, decorFor(i.id)])), [items]);
   const filtered = useMemo(
-    () => (filter === "All" ? gallery : gallery.filter((i) => tagOfType[i.type] === filter)),
-    [filter]
+    () => (filter === "All" ? items : items.filter((i) => tagOfType[i.type] === filter)),
+    [filter, items]
   );
   const visibleItems = showAll ? filtered : filtered.slice(0, INITIAL);
 

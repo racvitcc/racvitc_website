@@ -1,59 +1,64 @@
-import type { GalleryItem } from "./types";
+import "server-only";
 
-/** Real gallery assets from public/gallery — photos, films & awards for the
- *  Yearbook / Polaroid Wall (§5.14). Paths point at renamed, sorted files. */
-const raw: Omit<GalleryItem, "id">[] = [
-  // — Photos —
-  { type: "photo", caption: "FUN-RYLA", year: "2025–26", tag: "RYLA", src: "/gallery/photo-installation.jpeg" },
-  { type: "photo", caption: "Orientation on the lawn", year: "2025–26", tag: "RYLA", src: "/gallery/photo-ryla-circle.jpeg" },
-  { type: "photo", caption: "The Big Band night", year: "2025–26", tag: "Fellowship", src: "/gallery/photo-big-band.jpeg" },
-  { type: "photo", caption: "Club Expo — Unite Together", year: "2025–26", tag: "Community", src: "/gallery/photo-club-expo.jpeg" },
-  { type: "photo", caption: "District Rotaract Council", year: "2025–26", tag: "District", src: "/gallery/photo-district-council.jpeg" },
+import type { SanityImageSource } from "@sanity/image-url";
 
-  // — Videos (reels) —
-  { type: "video", caption: "A year in motion", year: "2025–26", tag: "Reel", src: "/gallery/video-1.mp4" },
-  { type: "video", caption: "Moments from the field", year: "2025–26", tag: "Reel", src: "/gallery/video-2.mp4" },
-  { type: "video", caption: "Behind the scenes", year: "2025–26", tag: "Reel", src: "/gallery/video-3.mp4" },
-  { type: "video", caption: "The movement, in motion", year: "2025–26", tag: "Reel", src: "/gallery/video-4.mp4" },
+import { sanityFetch } from "@/sanity/fetch";
+import { imageUrl } from "@/sanity/image";
+import { GALLERY_QUERY, TAGS } from "@/sanity/queries";
 
-  // — Awards —
-  { type: "award", caption: "Rising Club Recognition", year: "2025–26", tag: "Awards", src: "/gallery/award-rising-club.jpeg" },
-  { type: "award", caption: "Nakshatra — Champions", year: "2025–26", tag: "Awards", src: "/gallery/award-nakshatra-trophy.jpeg" },
-  { type: "award", caption: "Recognition plaque", year: "2025–26", tag: "Awards", src: "/gallery/award-recognition-plaque.jpeg" },
-];
+import type { GalleryItem, GalleryType } from "./types";
 
-export const gallery: GalleryItem[] = raw.map((item, i) => ({
-  ...item,
-  id: `g-${i}`,
-}));
+type RawGalleryItem = {
+  id: string;
+  type: GalleryType;
+  caption: string;
+  year: string | null;
+  tag: string | null;
+  image: SanityImageSource | null;
+  videoUrl: string | null;
+  album: SanityImageSource[] | null;
+};
 
-export const galleryTags = [
-  "All",
-  "Photos",
-  "Videos",
-  "Awards",
-] as const;
+/** Real gallery assets from Sanity — photos, films & awards for the
+ *  Yearbook / Polaroid Wall (§5.14). */
+export async function getGallery(): Promise<GalleryItem[]> {
+  let rows: RawGalleryItem[] = [];
+  try {
+    rows = await sanityFetch<RawGalleryItem[]>(GALLERY_QUERY, {
+      tags: [TAGS.gallery],
+    });
+  } catch (err) {
+    console.warn("[content] getGallery failed — rendering no gallery.", err);
+    return [];
+  }
+  return rows.map((g) => {
+    const still = imageUrl(g.image, 1200);
+    const isVideo = g.type === "video";
+    const album = (g.album ?? [])
+      .map((img) => imageUrl(img, 1200))
+      .filter((u): u is string => Boolean(u));
+    return {
+      id: g.id,
+      type: g.type,
+      caption: g.caption,
+      year: g.year ?? "",
+      tag: g.tag ?? "",
+      src: isVideo ? g.videoUrl ?? "" : still ?? "",
+      poster: isVideo ? still : undefined,
+      album: album.length ? album : undefined,
+    };
+  });
+}
 
-/** Sets for the image-scatter preview (heading + scattered photos). Real stills. */
-export const scatterSets = [
-  {
-    heading: "On the ground",
-    images: [
-      "/gallery/photo-installation.jpeg",
-      "/gallery/photo-ryla-circle.jpeg",
-      "/gallery/photo-club-expo.jpeg",
-      "/gallery/photo-big-band.jpeg",
-      "/gallery/photo-district-council.jpeg",
-    ],
-  },
-  {
-    heading: "Recognitions",
-    images: [
-      "/gallery/award-rising-club.jpeg",
-      "/gallery/award-nakshatra-trophy.jpeg",
-      "/gallery/award-recognition-plaque.jpeg",
-      "/gallery/photo-installation.jpeg",
-      "/gallery/photo-big-band.jpeg",
-    ],
-  },
-];
+/** Two sets for the image-scatter preview (heading + scattered photos),
+ *  derived from the gallery so editors never touch it directly. */
+export function scatterSetsFrom(
+  gallery: GalleryItem[]
+): { heading: string; images: string[] }[] {
+  const photos = gallery.filter((g) => g.type === "photo").map((g) => g.src);
+  const awards = gallery.filter((g) => g.type === "award").map((g) => g.src);
+  return [
+    { heading: "On the ground", images: photos.slice(0, 5) },
+    { heading: "Recognitions", images: [...awards, ...photos].slice(0, 5) },
+  ];
+}

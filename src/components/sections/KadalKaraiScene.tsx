@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Clock } from "lucide-react";
-import { signatureProject } from "@/content/projects";
-import { nextKadalKaraiEvent } from "@/content/events";
-import { formatEventDate, cn } from "@/lib/utils";
+import type { ClubEvent, Project } from "@/content/types";
+import { cn } from "@/lib/utils";
 import { gsap } from "@/lib/gsap";
 import { useGsapContext } from "@/hooks/useGsapContext";
 import Placeholder from "@/components/ui/Placeholder";
@@ -33,7 +32,13 @@ const WAVE_LAYERS = [
   { color: "#3f9d92", height: "40%", dur: "11s", opacity: 0.45, reverse: false },
 ];
 
-export default function KadalKaraiScene() {
+export default function KadalKaraiScene({
+  project,
+  nextDrive,
+}: {
+  project: Project | null;
+  nextDrive: ClubEvent | null;
+}) {
   const [enhanced, setEnhanced] = useState(false);
   const hudKgRef = useRef<HTMLSpanElement>(null);
 
@@ -75,10 +80,9 @@ export default function KadalKaraiScene() {
     [enhanced]
   );
 
-  if (!enhanced) return <KadalKarai />;
+  if (!enhanced || !project) return <KadalKarai project={project} />;
 
-  const p = signatureProject;
-  const nextDrive = nextKadalKaraiEvent;
+  const p = project;
   // 8 tiles (2 strips × 4) from the 7 real photos. Explicit arrangement:
   // kk-1 appears once, centered in the top strip; kk-3 fills the 8th tile so
   // it's the only photo shown twice. All seven photos appear.

@@ -21,15 +21,23 @@ import { ImageScatter } from "@/components/ui/ImageScatter";
 import { DiagonalCarousel } from "@/components/ui/DiagonalCarousel";
 import Button from "@/components/ui/Button";
 import { greenRotaractors } from "@/content/join";
-import { scatterSets } from "@/content/gallery";
-import { events, nextKadalKaraiEvent } from "@/content/events";
-import { signatureProject } from "@/content/projects";
+import { getGallery, scatterSetsFrom } from "@/content/gallery";
+import { getEvents, nextKadalKaraiEventFrom } from "@/content/events";
+import { getProjects, signatureProjectFrom } from "@/content/projects";
 import { formatEventDate } from "@/lib/utils";
 import { Calendar, Award, Waves, ArrowRight } from "lucide-react";
 
-const eventSlides = events.map((e) => ({ src: e.images[0], title: e.title }));
+export default async function Home() {
+  const [events, projects, gallery] = await Promise.all([
+    getEvents(),
+    getProjects(),
+    getGallery(),
+  ]);
+  const signatureProject = signatureProjectFrom(projects);
+  const nextKadalKaraiEvent = nextKadalKaraiEventFrom(events);
+  const scatterSets = scatterSetsFrom(gallery);
+  const eventSlides = events.map((e) => ({ src: e.images[0] ?? "", title: e.title }));
 
-export default function Home() {
   return (
     <>
       <IronhillHero />
@@ -54,11 +62,11 @@ export default function Home() {
 
       {/* PROJECTS — Kadal Karai cinematic + detail */}
       <section id="projects">
-        <KadalKaraiScene />
+        <KadalKaraiScene project={signatureProject} nextDrive={nextKadalKaraiEvent} />
         <Section band="paper">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
             <Reveal stagger={0.12} className="flex flex-col gap-5 lg:col-span-7">
-              {signatureProject.paragraphs.slice(1).map((para, i) => (
+              {signatureProject?.paragraphs.slice(1).map((para, i) => (
                 <p key={i} className="leading-relaxed text-ink-soft">{para}</p>
               ))}
               <div className="mt-2 flex flex-wrap gap-3">
@@ -110,7 +118,7 @@ export default function Home() {
             <DiagonalCarousel items={eventSlides} slideSize={240} />
           </div>
           <div className="mt-10">
-            <LazyEventsCalendar />
+            <LazyEventsCalendar events={events} />
           </div>
         </Reveal>
       </Section>
@@ -124,7 +132,7 @@ export default function Home() {
           <ImageScatter data={scatterSets} />
         </div>
         <div className="u-container mt-6">
-          <LazyGalleryWall />
+          <LazyGalleryWall items={gallery} />
         </div>
       </Section>
 
